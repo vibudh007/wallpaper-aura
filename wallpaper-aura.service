@@ -1,0 +1,19 @@
+[Unit]
+Description=Match ASUS Aura keyboard colors to the current wallpaper
+After=graphical-session-pre.target
+PartOf=graphical-session.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/wallpaper-aura
+Restart=on-failure
+RestartSec=5
+KillMode=control-group
+TimeoutStopSec=5
+NoNewPrivileges=yes
+UMask=0077
+
+[Install]
+WantedBy=graphical-session.target

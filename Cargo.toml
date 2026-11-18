@@ -1,0 +1,27 @@
+[package]
+name = "wallpaper-aura"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-only"
+description = "Event-driven wallpaper colors for four-zone ASUS laptop keyboards"
+repository = "https://github.com/vibudh007/wallpaper-aura"
+readme = "README.md"
+rust-version = "1.93"
+[dependencies]
+anyhow = "=1.0.104"
+image = { version = "=0.25.10", default-features = false, features = ["png", "jpeg", "webp"] }
+notify = "=8.2.2"
+regex = "=1.13.1"
+serde_json = "=1.0.154"
+zbus = { version = "=6.3.0", default-features = false, features = ["default-rt", "proxy"] }
+roxmltree = "=0.21.2"
+rustix = { version = "=1.1.6", features = ["event"] }
+libc = "=0.2.191"
+ron = "=0.12.3"
+futures-lite = "=2.6.1"
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
