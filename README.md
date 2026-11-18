@@ -1,24 +1,24 @@
-# Wallpaper Aura
+# ASUS Wallpaper Aura
 
-Match a four-zone ASUS laptop keyboard to its wallpaper. Wallpaper Aura is a small Rust daemon that responds to wallpaper changes, divides the image into four equal vertical columns, and applies one color per zone through **asusd**, the daemon shipped with **asusctl**.
+Match a four-zone ASUS laptop keyboard to its wallpaper. Wallpaper Aura is a small Rust daemon that responds to wallpaper changes, divides the image into four equal vertical columns, and applies one color per zone through asusd, the daemon shipped with asusctl.
 
 It sleeps between events, pauses automatic color work while the laptop lid is closed, and refreshes the current wallpaper when the lid opens. Zones are processed independently; the keyboard provides its natural optical diffusion.
 
 ## Targets
 
-- **Linux with systemd/logind**, a user session bus, and asusd.
-- **COSMIC**, **GNOME**, and **KDE Plasma**. X11 or Wayland does not affect image-based processing.
+- Linux with systemd/logind, a user session bus, and asusd.
+- COSMIC, GNOME, and KDE Plasma. X11 or Wayland does not affect image-based processing.
 - ASUS devices exposing static color mode and four basic keyboard zones, `Key1`–`Key4`, through the supported asusd D-Bus interface.
-- Local **JPEG, PNG, and WebP** wallpapers.
+- Local JPEG, PNG, and WebP wallpapers.
 
-The current hardware validation was on a **ROG Strix G513QY**, with **asusctl 6.5.0**, running **COSMIC on Fedora**. Native GNOME and Plasma sessions have not yet been tested. This is an initial release; reports from other supported setups are welcome.
+The current hardware validation was on a ROG Strix G513QY, with asusctl 6.5.0, running COSMIC on Fedora. Native GNOME and Plasma sessions have not yet been tested. This is an initial release; reports from other supported setups are welcome.
 
 ## How it works
 
 1. Discover the active wallpaper through the desktop's settings or state.
 2. Watch filesystem and desktop notifications; there is no periodic wallpaper polling.
-3. Decode with input/allocation limits, honor EXIF orientation, and sample a fixed **128 × 64** grid.
-4. For each column, compare the mean linear-light luminance of the **darkest 5%** and **brightest 5%** of samples. For a luminance difference `D`, the highlight weight is `D / (D + 0.10)`.
+3. Decode with input/allocation limits, honor EXIF orientation, and sample a fixed 128 × 64 grid.
+4. For each column, compare the mean linear-light luminance of the darkest 5% and brightest 5% of samples. For a luminance difference `D`, the highlight weight is `D / (D + 0.10)`.
 5. Blend the column's average RGB with its brightest-5% average in linear light. High-contrast regions favor visible highlights; low-contrast regions stay near their average.
 6. Increase saturation and apply a fixed contrast curve. Dark zones remain dim; black/near-black output is `(1,1,1)`. There is no per-wallpaper brightness normalization or blending between zones.
 7. Send changed colors through asusd on a persistent D-Bus connection.
@@ -31,9 +31,9 @@ The event queue is bounded, bursts are coalesced, and the current palette is cac
 
 Runtime:
 
-- `asusd` from **asusctl**, installed and running normally.
-- systemd user services and **logind** with the `LidClosed` property.
-- The desktop's existing **`gsettings`** for GNOME and **`gdbus`** for Plasma/ASUS notifications, usually supplied by GLib's utilities package. `gdbus` is also used on COSMIC for ASUS brightness notifications.
+- `asusd` from asusctl, installed and running normally.
+- systemd user services and logind with the `LidClosed` property.
+- The desktop's existing `gsettings` for GNOME and `gdbus` for Plasma/ASUS notifications, usually supplied by GLib's utilities package. `gdbus` is also used on COSMIC for ASUS brightness notifications.
 
 There is no Python, Pillow, GTK, ImageMagick, or compiler requirement for running the binary. Python and Pillow are optional test dependencies only. Do not run the daemon as root or grant it raw USB access; it uses the normal asusd authorization policy.
 
@@ -41,7 +41,7 @@ There is no Python, Pillow, GTK, ImageMagick, or compiler requirement for runnin
 
 ### Release binary
 
-Download `wallpaper-aura-0.1.0-x86_64-unknown-linux-gnu.tar.gz` and `SHA256SUMS` from [Releases](https://github.com/vibudh007/wallpaper-aura/releases). The binary is built for x86-64 Linux with **glibc 2.39 or newer**; it is not a universal Linux binary. Older glibc releases and musl distributions may need a source build.
+Download `wallpaper-aura-0.1.0-x86_64-unknown-linux-gnu.tar.gz` and `SHA256SUMS` from [Releases](https://github.com/vibudh007/wallpaper-aura/releases). The binary is built for x86-64 Linux with glibc 2.39 or newer; it is not a universal Linux binary. Older glibc releases and musl distributions may need a source build.
 
 ```sh
 sha256sum --check --ignore-missing SHA256SUMS
@@ -69,7 +69,7 @@ Starting the service applies colors. It is tied to `graphical-session.target` an
 
 ### Build from source
 
-Use **Rust 1.93 or newer**. Dependencies are pinned in `Cargo.lock`.
+Use Rust 1.93 or newer. Dependencies are pinned in `Cargo.lock`.
 
 ```sh
 git clone https://github.com/vibudh007/wallpaper-aura.git
@@ -130,11 +130,11 @@ This removes the application, unit, and any overrides you added for it. It leave
 
 ## Limitations
 
-- **Brightness preservation is best effort.** The installed asusd color setter also reapplies its cached keyboard brightness. Wallpaper Aura reads the current nonzero level and synchronizes the daemon to that same level before color updates; it defers while Off. Fn-key and D-Bus brightness notifications wake deferred work. A brightness change occurring between D-Bus calls can still race. A strict color-only guarantee needs an asusd API change.
-- **Lightbar power zones are not color zones.** On the tested G513QY, asusd exposes independent keyboard/lightbar power flags, but only four keyboard color zones and no independent lightbar color zones. The daemon never changes those power flags. Firmware mirroring to an enabled lightbar has not been verified. Other models are not automatically assumed to support independent lightbar sections.
-- **Plasma's stock slideshow does not signal every transition externally.** Detection there is best effort. Plasma wallpaper packages/directories and third-party wallpaper plugins are unsupported; select an image file or use a setter hook.
-- **GNOME XML slideshows are unsupported.** Solid-color/no-image backgrounds leave the current keyboard colors unchanged.
-- Lid pausing follows **lid state**, not display DPMS state. Turning off the internal display while leaving the lid open does not pause the daemon. Physical lid close/reopen testing was pending when this release was prepared; the live notification subscription and state logic were checked.
+- Brightness preservation is best effort. The installed asusd color setter also reapplies its cached keyboard brightness. Wallpaper Aura reads the current nonzero level and synchronizes the daemon to that same level before color updates; it defers while Off. Fn-key and D-Bus brightness notifications wake deferred work. A brightness change occurring between D-Bus calls can still race. A strict color-only guarantee needs an asusd API change.
+- Lightbar power zones are not color zones. On the tested G513QY, asusd exposes independent keyboard/lightbar power flags, but only four keyboard color zones and no independent lightbar color zones. The daemon never changes those power flags. Firmware mirroring to an enabled lightbar has not been verified. Other models are not automatically assumed to support independent lightbar sections.
+- Plasma's stock slideshow does not signal every transition externally. Detection there is best effort. Plasma wallpaper packages/directories and third-party wallpaper plugins are unsupported; select an image file or use a setter hook.
+- GNOME XML slideshows are unsupported. Solid-color/no-image backgrounds leave the current keyboard colors unchanged.
+- Lid pausing follows lid state, not display DPMS state. Turning off the internal display while leaving the lid open does not pause the daemon. Physical lid close/reopen testing was pending when this release was prepared; the live notification subscription and state logic were checked.
 - Images are analyzed as files, not as screenshots of the cropped/scaled desktop. Display cropping, color profiles, HDR and physical LED calibration are not reproduced. EXIF orientation is honored.
 - File, dimension, and decoder limits reject unusually large or malformed inputs. Full-image decoding is still required for some formats; the bounded sample does not make decoding free.
 - No universal POSIX/XDG interface defines the current wallpaper. Support is through the named desktop adapters and explicit hooks.
@@ -143,7 +143,7 @@ This removes the application, unit, and any overrides you added for it. It leave
 
 The daemon uses event notifications, blocking waits, a bounded queue, bounded image inputs, and a single cached palette. There is no periodic wallpaper or lid polling. Some operations still consume CPU and battery when a wallpaper changes, and LED power consumption is independent of the daemon.
 
-Short measurements on the development machine showed roughly **23 ms** for a small synthetic replacement and **zero idle CPU ticks over two seconds**. Real 4K image processing took roughly **0.1–0.3 seconds**, depending on the image. The installed service and helpers used around **6 MB** after startup, with larger transient allocations while decoding. These are observations, not battery, memory, or latency guarantees.
+Short measurements on the development machine showed roughly 23 ms for a small synthetic replacement and zero idle CPU ticks over two seconds. Real 4K image processing took roughly 0.1–0.3 seconds, depending on the image. The installed service and helpers used around 6 MB after startup, with larger transient allocations while decoding. These are observations, not battery, memory, or latency guarantees.
 
 ```sh
 cargo fmt --check
@@ -157,4 +157,4 @@ See [AUDIT.md](AUDIT.md) for review findings and verification limits. Own code f
 
 ## License
 
-**GNU General Public License, version 3 only** (`GPL-3.0-only`). See [LICENSE](LICENSE). Dependency code retains its own licenses; release archives include dependency license information and corresponding source.
+GNU General Public License, version 3 only (`GPL-3.0-only`). See [LICENSE](LICENSE). Dependency code retains its own licenses; release archives include dependency license information and corresponding source.
